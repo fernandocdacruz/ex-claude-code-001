@@ -28,7 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Spring Boot 4.0.5 + Java 17 REST API for managing customers (`Cliente`).
 
-**Layer flow:** Controller (not yet created) → `ClienteService` → `ClienteMapper` → `ClienteRepository` → PostgreSQL
+**Layer flow:** `ClienteController` → `ClienteService` → `ClienteMapper` → `ClienteRepository` → PostgreSQL
 
 - **Model:** `Cliente` entity mapped to table `clientes` with unique constraints on `email` and `cpf`.
 - **DTO (input):** `ClienteDto` is a Java record with Bean Validation annotations. Fields: `genero` (`@NotBlank`), `nomeCompleto` (`@NotBlank`, `@Size(3-100)`), `email` (`@NotBlank`, `@Email`), `cpf` (`@NotBlank`, `@Pattern` 11 raw digits e.g. `00000000000`), `observacoes` (optional, `@Size(max=250)`).
@@ -45,6 +45,12 @@ Spring Boot 4.0.5 + Java 17 REST API for managing customers (`Cliente`).
   - `buscarClientePeloId(Long id)` — returns `ClienteResponseDto` or throws `RegraNegocioException` if not found
   - `atualizarCliente(Long id, ClienteUpdateDto)` — finds, updates via mapper, saves and returns `ClienteResponseDto`
   - `excluirCliente(Long id)` — checks existence, deletes or throws `RegraNegocioException`
+- **Controller:** `ClienteController` is a `@RestController` mapped to `/api/clientes` with `@CrossOrigin(origins = "*")`:
+  - `POST /api/clientes` — creates a client, returns HTTP 201 + `ClienteResponseDto`
+  - `GET /api/clientes` — returns all clients as `List<ClienteResponseDto>`
+  - `GET /api/clientes/{id}` — returns a single client or HTTP 400 if not found
+  - `PUT /api/clientes/{id}` — updates a client, returns HTTP 200 + `ClienteResponseDto`
+  - `DELETE /api/clientes/{id}` — deletes a client, returns HTTP 204
 - **Exception:** `RegraNegocioException` extends `RuntimeException` for business rule violations. `GlobalExceptionHandler` (`@RestControllerAdvice`) handles `RegraNegocioException` (HTTP 400 + message) and `MethodArgumentNotValidException` (HTTP 400 + `{ "campo": "mensagem" }` JSON).
 
 ## Database
@@ -75,4 +81,4 @@ Tests use H2 in-memory via `@DataJpaTest` — no external DB needed for tests.
 - `GlobalExceptionHandler` está completo — trata `RegraNegocioException` e erros de validação de DTOs.
 - `ClienteService` está completo com testes unitários cobrindo todos os cenários (happy path + exceções).
 - `ClienteMapper` está completo com testes unitários cobrindo todos os métodos e casos de borda.
-- Controller ainda não foi criado — próximo passo é criar `ClienteController` expondo os endpoints REST.
+- `ClienteController` está completo — expõe os endpoints REST em `/api/clientes` (POST, GET, GET/{id}, PUT/{id}, DELETE/{id}).
