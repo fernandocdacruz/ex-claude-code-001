@@ -1,4 +1,4 @@
-confispring:
+spring:
   application:
     name: claude1
 
